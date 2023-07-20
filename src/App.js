@@ -1,35 +1,36 @@
+// App.js
 import React, { useContext } from 'react';
-import { Navigate, BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Navigate, BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from "./pages/Register";
 import Home from './pages/Home';
 import './style.scss';
-import { AuthContext, AuthContextProvider } from './context/AuthContext';
+import AuthContext, { AuthProvider } from './context/AuthContext';
 
-function ProtectedRoute({ children }) {
+function ProtectedRoute() {
   const { currentUser } = useContext(AuthContext);
 
   if (!currentUser) {
     return <Navigate to="/login" />;
   }
 
-  return children;
+  return <Outlet />;
 }
 
 function App() {
   return (
     <BrowserRouter>
-      <AuthContextProvider>
+     
         <Routes>
           <Route path="/">
             <Route element={<ProtectedRoute />}>
               <Route index element={<Home />} />
-              <Route path="login" element={<Login />} />
-              <Route path="register" element={<Register />} />
             </Route>
+            <Route path="login" element={<Login />} />
+            <Route path="register" element={<Register />} />
           </Route>
         </Routes>
-      </AuthContextProvider>
+     
     </BrowserRouter>
   );
 }
