@@ -1,13 +1,34 @@
 // AuthContext.js
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { auth } from '../firebase';
 
 const AuthContext = createContext();
 
 const AuthContextProvider = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState(/* Your authentication logic here */);
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setCurrentUser(user);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Implement your authentication functions like signInWithEmailAndPassword, etc.
+  // For example:
+  const signInWithEmailAndPassword = async (email, password) => {
+    try {
+      const userCredential = await auth.signInWithEmailAndPassword(email, password);
+      setCurrentUser(userCredential.user);
+    } catch (error) {
+      // Handle login errors if needed
+      console.log(error);
+    }
+  };
 
   return (
-    <AuthContext.Provider value={{ currentUser }}>
+    <AuthContext.Provider value={{ currentUser, signInWithEmailAndPassword }}>
       {children}
     </AuthContext.Provider>
   );
@@ -21,5 +42,5 @@ const useAuth = () => {
   return context;
 };
 
-export { AuthContextProvider, useAuth, }; // Export the AuthContextProvider
-export default AuthContext; // Export the AuthContext (default export)
+export { AuthContextProvider, useAuth };
+export default AuthContext;
